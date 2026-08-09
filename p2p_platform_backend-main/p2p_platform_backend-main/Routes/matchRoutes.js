@@ -1,0 +1,39 @@
+import express from "express";
+import {
+  cancelActiveMatch,
+  completeMatch,
+  confirmMatch,
+  createMatch,
+  getCancelledCounter,
+  getCompletedCounter,
+  rejectMatch,
+  viewActiveMatch,
+  viewMatchHistory,
+  viewPendingMatch,
+  
+} from "../controllers/matchController.js";
+
+const router = express.Router();
+
+router.post("/accept/:requestId", createMatch);
+
+router.get("/active", viewActiveMatch);
+
+router.get("/pending", viewPendingMatch)
+
+router.get("/history", viewMatchHistory)
+
+router.patch("/confirm/:matchId", confirmMatch);
+
+router.patch("/reject/:matchId", rejectMatch);
+
+router.patch("/complete/:matchId", completeMatch)
+ 
+router.patch("/cancel/:matchId", cancelActiveMatch)
+
+router.get("/complete/counter", getCompletedCounter)
+
+router.get("/cancel/counter", getCancelledCounter)
+
+
+export default router;

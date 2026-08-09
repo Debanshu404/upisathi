@@ -1,0 +1,250 @@
+import mongoose from "mongoose";
+import { ExchangeRequest } from "../models/exchangeRequestModel.js";
+import { Match } from "../models/matchModel.js";
+import { exchangeRequestSchema } from "../validators/zodSchema.js";
+import { errorResponse, successResponse } from "../utils/response.js";
+import { io } from "../app.js";
+import { Notification } from "../models/notificationModel.js";
+import {
+  NOTIFICATION_TITLES,
+  NOTIFICATION_TYPES,
+} from "../config/notificationTypes.js";
+
+//CREATE EXCHANGE REQUEST
+export const createRequest = async (req, res) => {
+  const { success, data, error } = exchangeRequestSchema.safeParse(req.body);
+
+  if (!success) {
+    return errorResponse(res, 400, error.issues[0].message);
+  }
+
+  const { type, amount, note, expiry, coordinates } = data;
+
+  const existingExchangeReq = await ExchangeRequest.findOne({
+    creator: req.user.id,
+    status: "ACTIVE",
+    expiresAt: { $gt: new Date() },
+  });
+
+  if (existingExchangeReq) {
+    return errorResponse(
+      res,
+      400,
+      "You already have a active exchange request",
+    );
+  }
+
+  const blockingMatch = await Match.findOne({
+    status: "ACTIVE",
+    $or: [
+      {
+        requester: req.user.id,
+        requesterCompleted: false,
+      },
+      {
+        accepter: req.user.id,
+        accepterCompleted: false,
+      },
+    ],
+  });
+
+  if (blockingMatch) {
+    return errorResponse(res, 400, "You already have a uncompleted match ");
+  }
+
+  try {
+    const request = await ExchangeRequest.create({
+      creator: req.user.id,
+      type,
+      amount,
+      note,
+      expiresAt: new Date(Date.now() + 1000 * expiry * 60),
+      location: {
+        type: "Point",
+        coordinates: [coordinates.longitude, coordinates.latitude],
+      },
+    });
+
+    const populatedRequest = await ExchangeRequest.findById(
+      request._id,
+    ).populate("creator", "username avatar");
+
+    io.to("public-room").emit("newRequest", { request: populatedRequest });
+
+    return successResponse(res, 200, "Exchange request created successfully");
+  } catch (error) {
+    console.error(error);
+    return errorResponse(res, 500, "Failed to create exchange request");
+  }
+};
+
+//CANCEL MY ACTIVE REQUEST
+export const cancelRequest = async (req, res) => {
+  const { requestId } = req.params;
+
+  if (!mongoose.isValidObjectId(requestId)) {
+    return errorResponse(res, 400, "Invalid match ID");
+  }
+
+  const existingExchangeReq = await ExchangeRequest.findOne({
+    _id: requestId,
+    creator: req.user.id,
+    status: "ACTIVE",
+  });
+
+  if (!existingExchangeReq) {
+    return errorResponse(res, 400, "You don't have an active request");
+  }
+
+  if (existingExchangeReq.expiresAt < new Date()) {
+    return errorResponse(res, 400, "This request is already expired");
+  }
+
+  const matchInfo = await Match.findOne({
+    request: requestId,
+    status: { $in: ["PENDING", "ACTIVE"] },
+  });
+
+  if (matchInfo) {
+    return errorResponse(res, 403, "You can't cancel a matched request");
+  }
+
+  try {
+    await existingExchangeReq.updateOne({
+      $set: {
+        status: "CANCELLED",
+      },
+    });
+
+    io.to("public-room").emit("requestCancelled", { requestId });
+
+    return successResponse(res, 200, "Exchange request cancelled successfully");
+  } catch (error) {
+    console.error(error);
+
+    return errorResponse(res, 500, "Failed to cancel exchange request");
+  }
+};
+
+//GETTING ACTIVE PUBLIC REQUESTS
+export const getPublicRequests = async (req, res) => {
+  const lngNum = parseFloat(req.query.lng);
+  const latNum = parseFloat(req.query.lat);
+  const radiusNum = parseFloat(req.query.radius || 5);
+
+  if (isNaN(lngNum) || isNaN(latNum)) {
+    return errorResponse(res, 400, "Invalid coordinates provided");
+  }
+
+  try {
+    const acceptedRequestIds = await Match.find({
+      accepter: req.user.id,
+      status: {
+        $in: ["ACTIVE", "PENDING"],
+      },
+    }).distinct("request");
+
+    const activeMatches = await Match.find({
+      status: {
+        $in: ["ACTIVE", "PENDING"],
+      },
+      $or: [
+        {
+          requester: req.user.id,
+        },
+        {
+          accepter: req.user.id,
+        },
+      ],
+    }).select("requester accepter");
+
+    const blockedUserIds = activeMatches.map((elem) => {
+      if (elem.requester.toString() === req.user.id.toString()) {
+        return elem.accepter;
+      }
+
+      return elem.request;
+    });
+
+    const requests = await ExchangeRequest.find({
+      creator: { $nin: [...blockedUserIds, req.user.id] },
+      status: "ACTIVE",
+      expiresAt: { $gt: new Date() },
+      _id: { $nin: acceptedRequestIds },
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [lngNum, latNum],
+          },
+          $maxDistance: radiusNum * 1000,
+        },
+      },
+    }).populate("creator", "username avatar totalReviews trustScore");
+
+    if (requests.length === 0) {
+      return errorResponse(res, 200, "No nearby requests found", []);
+    } else {
+      return successResponse(
+        res,
+        200,
+        "Public requests fetched successfully",
+        requests,
+      );
+    }
+  } catch (error) {
+    console.log(error);
+    return errorResponse(res, 500, "Failed to get requests");
+  }
+};
+
+//GETTING ALL KINDS OF OWN REQUESTS
+export const getMyRequests = async (req, res) => {
+  const { cursor } = req.query;
+  const limit = 10;
+
+  const query = {
+    creator: req.user.id,
+  };
+
+  if (cursor) {
+    query._id = {
+      $lt: cursor,
+    };
+  }
+
+  try {
+    const requests = await ExchangeRequest.find(query)
+      .sort({ _id: -1 })
+      .limit(limit + 1)
+      .lean();
+
+    const hasMore = requests.length > limit;
+
+    if (hasMore) {
+      requests.pop();
+    }
+
+    const nextCursor = hasMore ? requests[requests.length - 1]._id : null;
+
+    if (requests.length === 0) {
+      return errorResponse(res, 400, "You don't have any requests");
+    } else {
+      const updatedReq = requests.map((elem) => {
+        if (elem.expiresAt < new Date()) {
+          return { ...elem, expired: true };
+        } else {
+          return { ...elem, expired: false };
+        }
+      });
+
+      return successResponse(res, 200, "Own requests fetched successfully", {
+        requests: updatedReq,
+        hasMore,
+        nextCursor,
+      });
+    }
+  } catch (error) {
+    return errorResponse(res, 400, "Failed to get requests");
+  }
+};

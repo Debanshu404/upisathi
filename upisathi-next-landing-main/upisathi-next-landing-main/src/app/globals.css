@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700;800;900&display=swap');
+@import "tailwindcss";
+
+:root {
+  --background: #F7F5F2;
+  --foreground: #000000;
+  --accent-blue: #4A7DFF;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent-blue: var(--accent-blue);
+  --font-space: 'Space Grotesk', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Apple Website Style Typography Override */
+h1, h2, h3, h4, h5, h6 {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  color: #000000;
+}
+
+/* Custom Doodles and hand-drawn decorations placement */
+.hero-underline-container {
+  position: relative;
+  display: inline-block;
+}
+
+.hero-underline-svg {
+  position: absolute;
+  left: 0;
+  bottom: -12px;
+  width: 100%;
+  height: 20px;
+  pointer-events: none;
+}
+
+/* Micro-animations */
+.hover-underline-animation {
+  position: relative;
+  display: inline-block;
+}
+
+.hover-underline-animation::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background-color: currentColor;
+  transform-origin: bottom right;
+  transition: transform 0.25s ease-out;
+}
+
+.hover-underline-animation:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+/* Editorial layout utilities */
+.spacing-massive {
+  gap: 8rem;
+}
+
+@media (max-width: 768px) {
+  .spacing-massive {
+    gap: 4rem;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F7F5F2;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 9999px;
+  border: 3px solid #F7F5F2; /* Creates floating padding effect */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4A7DFF; /* UpiSathi Accent Blue */
+}
+
+/* Firefox Support */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) #F7F5F2;
+}
