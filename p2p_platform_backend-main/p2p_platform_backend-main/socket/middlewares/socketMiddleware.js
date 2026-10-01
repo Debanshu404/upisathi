@@ -4,7 +4,12 @@ import { Session } from "../../models/sessionModel.js";
 
 export const socketAuth = async (socket, next) => {
   try {
-    const cookies = cookie.parse(socket.handshake.headers.cookie);
+    const rawCookie = socket.handshake.headers.cookie || "";
+    const cookies = cookie.parse(rawCookie);
+
+    if (!cookies.sid) {
+      return next(new Error("Unauthorized"));
+    }
 
     const signedSid = cookieParser.signedCookie(
       cookies.sid,

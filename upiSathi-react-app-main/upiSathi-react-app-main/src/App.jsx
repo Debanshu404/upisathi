@@ -11,16 +11,18 @@ import CreateRequest from "./pages/CreateRequest";
 import FindingMatch from "./pages/FindingMatch";
 import FindRequests from "./pages/FindRequests";
 import Chat from "./pages/Chat";
+import Landing from "./pages/Landing";
 import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
 import Layout from "./components/Layout";
 
 function App() {
-
-
   return (
     <>
       <Routes>
+        {/* Landing Page (Publicly accessible to everyone) */}
+        <Route path="/landing" element={<Landing />} />
+
         {/* Protected Routes with Layout */}
         <Route
           element={

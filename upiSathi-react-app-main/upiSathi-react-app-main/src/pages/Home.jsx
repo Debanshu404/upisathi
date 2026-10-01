@@ -735,97 +735,112 @@ function Home() {
           return (
             <div className="space-y-6">
               {/* Need Cash or UPI? Creator Card */}
-              <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
-                <div className="flex justify-between items-start mb-4 gap-2">
+              <div className="bg-white dark:bg-[#272625] border border-slate-200/80 dark:border-white/10 rounded-3xl p-6 shadow-[0_10px_35px_rgba(15,23,42,0.03)] relative overflow-hidden transition-colors">
+                {/* Decorative subtle gradient accent line */}
+                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-500 via-violet-500 to-emerald-500" />
+                
+                <div className="flex justify-between items-start mb-4 gap-2 pt-1">
                   <div className="space-y-1">
-                    <h2 className="text-xl font-extrabold text-slate-800 tracking-tight">Need Cash or UPI?</h2>
-                    <p className="text-xs text-slate-400 font-semibold max-w-[220px] leading-relaxed">
-                      Set your amount and meet up with a helper near you.
+                    <div className="inline-flex items-center space-x-1.5 bg-indigo-50 dark:bg-white/10 text-indigo-700 dark:text-indigo-300 border border-indigo-100/80 dark:border-white/10 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider mb-1">
+                      <span>⚡ Zero Fee P2P Exchange</span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white tracking-tight">Need Cash or UPI?</h2>
+                    <p className="text-xs text-slate-400 dark:text-slate-400 font-semibold max-w-[240px] leading-relaxed">
+                      Instant peer matching with verified people in your neighborhood.
                     </p>
                   </div>
                   <button
                     onClick={handleCreateRequestRedirect}
                     disabled={hasActiveOrMatched}
-                    className={`flex items-center space-x-1.5 px-4 py-2.5 rounded-xl font-extrabold text-xs shadow-sm transition-all duration-300 ${hasActiveOrMatched
-                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
-                        : 'bg-gradient-to-tr from-indigo-600 to-violet-650 bg-indigo-600 hover:from-indigo-700 hover:to-violet-750 text-white shadow-indigo-600/10 shadow-md hover:shadow-indigo-600/20 active:scale-95 cursor-pointer'
+                    className={`flex items-center space-x-2 px-4 py-3 rounded-2xl font-extrabold text-xs shadow-md transition-all duration-200 ${hasActiveOrMatched
+                        ? 'bg-slate-100 dark:bg-white/5 text-slate-400 cursor-not-allowed shadow-none'
+                        : 'bg-[#111111] dark:bg-[#e8400d] hover:bg-[#272625] dark:hover:bg-[#d03709] text-white shadow-black/10 active:scale-95 cursor-pointer'
                       }`}
-                    title={hasActiveOrMatched ? "You already have a live request or swap" : "Ask for Cash/UPI"}
+                    title={hasActiveOrMatched ? "You already have an active request or swap" : "Ask for Cash or UPI"}
                   >
-                    <Plus size={14} className="stroke-[3]" />
+                    <Plus size={16} className="stroke-[3]" />
                     <span>Ask for Cash/UPI</span>
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between bg-slate-50/70 border border-slate-100/80 rounded-2xl p-4 mt-2 relative overflow-hidden">
-                  <div className="flex-1 flex flex-col items-center p-2 rounded-xl transition-all duration-300">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">You Send</span>
-                    <div className="flex items-center space-x-2 mt-1">
-                      {sendType === 'UPI' ? (
-                        <>
-                          <div className="p-1.5 bg-emerald-50 rounded-lg text-emerald-600">
-                            <Smartphone className="stroke-[2.5]" size={16} />
-                          </div>
-                          <span className="text-base font-extrabold text-slate-800">UPI</span>
-                        </>
-                      ) : (
-                        <>
-                          <div className="p-1.5 bg-indigo-50 rounded-lg text-indigo-600">
-                            <Banknote className="stroke-[2.5]" size={16} />
-                          </div>
-                          <span className="text-base font-extrabold text-slate-800">Cash</span>
-                        </>
-                      )}
+                {/* Interactive Direction Switcher */}
+                <div className="bg-slate-50/90 dark:bg-[#1a1918] border border-slate-200/60 dark:border-white/10 rounded-2xl p-4 mt-3 relative overflow-hidden transition-colors">
+                  <div className="grid grid-cols-11 items-center gap-2">
+                    {/* Send Side */}
+                    <div className="col-span-5 flex flex-col items-center p-2 rounded-xl bg-white dark:bg-[#272625] border border-slate-200/50 dark:border-white/10 shadow-sm">
+                      <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">You Give</span>
+                      <div className="flex items-center space-x-2 mt-1.5">
+                        {sendType === 'UPI' ? (
+                          <>
+                            <div className="p-1.5 bg-emerald-50 dark:bg-emerald-950/40 rounded-lg text-emerald-600 dark:text-emerald-400">
+                              <Smartphone className="stroke-[2.5]" size={16} />
+                            </div>
+                            <span className="text-base font-black text-slate-800 dark:text-white">UPI Transfer</span>
+                          </>
+                        ) : (
+                          <>
+                            <div className="p-1.5 bg-indigo-50 dark:bg-indigo-950/40 rounded-lg text-indigo-600 dark:text-indigo-400">
+                              <Banknote className="stroke-[2.5]" size={16} />
+                            </div>
+                            <span className="text-base font-black text-slate-800 dark:text-white">Physical Cash</span>
+                          </>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  <button
-                    onClick={handleSwapSelection}
-                    className="w-10 h-10 rounded-full bg-white border border-slate-100 shadow-sm flex items-center justify-center hover:bg-slate-50 active:scale-90 transition-all duration-300 mx-3 cursor-pointer"
-                  >
-                    <ArrowLeftRight size={16} className={`text-slate-500 transition-transform duration-500 ${sendType === 'UPI' ? 'rotate-0' : 'rotate-180'}`} />
-                  </button>
+                    {/* Middle Swap Button */}
+                    <div className="col-span-1 flex justify-center">
+                      <button
+                        onClick={handleSwapSelection}
+                        className="w-10 h-10 rounded-full bg-white dark:bg-[#272625] border border-slate-200 dark:border-white/10 shadow-md flex items-center justify-center hover:bg-indigo-50 dark:hover:bg-white/10 hover:text-indigo-600 active:scale-90 transition-all duration-300 cursor-pointer"
+                        title="Switch swap direction"
+                      >
+                        <ArrowLeftRight size={15} className={`text-slate-600 dark:text-slate-300 transition-transform duration-500 ${sendType === 'UPI' ? 'rotate-0' : 'rotate-180'}`} />
+                      </button>
+                    </div>
 
-                  <div className="flex-1 flex flex-col items-center p-2 rounded-xl transition-all duration-300">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">You Receive</span>
-                    <div className="flex items-center space-x-2 mt-1">
-                      {sendType === 'UPI' ? (
-                        <>
-                          <div className="p-1.5 bg-indigo-50 rounded-lg text-indigo-600">
-                            <Banknote className="stroke-[2.5]" size={16} />
-                          </div>
-                          <span className="text-base font-extrabold text-slate-800">Cash</span>
-                        </>
-                      ) : (
-                        <>
-                          <div className="p-1.5 bg-emerald-50 rounded-lg text-emerald-600">
-                            <Smartphone className="stroke-[2.5]" size={16} />
-                          </div>
-                          <span className="text-base font-extrabold text-slate-800">UPI</span>
-                        </>
-                      )}
+                    {/* Receive Side */}
+                    <div className="col-span-5 flex flex-col items-center p-2 rounded-xl bg-white dark:bg-[#272625] border border-slate-200/50 dark:border-white/10 shadow-sm">
+                      <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">You Receive</span>
+                      <div className="flex items-center space-x-2 mt-1.5">
+                        {sendType === 'UPI' ? (
+                          <>
+                            <div className="p-1.5 bg-indigo-50 dark:bg-indigo-950/40 rounded-lg text-indigo-600 dark:text-indigo-400">
+                              <Banknote className="stroke-[2.5]" size={16} />
+                            </div>
+                            <span className="text-base font-black text-slate-800 dark:text-white">Physical Cash</span>
+                          </>
+                        ) : (
+                          <>
+                            <div className="p-1.5 bg-emerald-50 dark:bg-emerald-950/40 rounded-lg text-emerald-600 dark:text-emerald-400">
+                              <Smartphone className="stroke-[2.5]" size={16} />
+                            </div>
+                            <span className="text-base font-black text-slate-800 dark:text-white">UPI Transfer</span>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Live Nearby Swaps Map & List Card */}
-              <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-[0_10px_35px_rgba(15,23,42,0.05)] space-y-4 overflow-hidden">
+              <div className="bg-white dark:bg-[#272625] border border-slate-100 dark:border-white/10 rounded-3xl p-5 shadow-[0_10px_35px_rgba(15,23,42,0.05)] space-y-4 overflow-hidden transition-colors">
                 <div className="flex justify-between items-start gap-4 px-1">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-black text-slate-900 text-sm tracking-tight">Nearby Live Requests</h3>
+                      <h3 className="font-black text-slate-900 dark:text-white text-sm tracking-tight">Nearby Live Requests</h3>
                       {topRequests.length > 0 && (
-                        <span className="min-w-5 h-5 px-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-[9px] font-black flex items-center justify-center">
+                        <span className="min-w-5 h-5 px-1.5 rounded-full bg-indigo-50 dark:bg-white/10 border border-indigo-100 dark:border-white/10 text-indigo-600 dark:text-indigo-400 text-[9px] font-black flex items-center justify-center">
                           {topRequests.length > 99 ? '99+' : topRequests.length}
                         </span>
                       )}
                     </div>
-                    <p className="text-[10px] text-slate-400 font-semibold mt-1">Sorted by distance from your location</p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-400 font-semibold mt-1">Sorted by distance from your location</p>
                   </div>
                   <Link
                     to="/find-requests"
-                    className="h-8 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 text-[10px] font-extrabold text-indigo-700 transition-colors flex items-center gap-1 flex-shrink-0"
+                    className="h-8 px-3 rounded-xl bg-indigo-50 dark:bg-white/10 hover:bg-indigo-100 dark:hover:bg-white/15 border border-indigo-100 dark:border-white/10 text-[10px] font-extrabold text-indigo-700 dark:text-indigo-300 transition-colors flex items-center gap-1 flex-shrink-0"
                   >
                     <span>Explore all</span>
                     <ChevronRight size={12} />
@@ -922,8 +937,8 @@ function Home() {
         {/* --- ACTIVITY STATS GRID --- */}
         <div>
           <div className="flex justify-between items-center mb-3 px-1">
-            <h3 className="font-extrabold text-slate-800 text-base tracking-tight">Your Activity</h3>
-            <Link to="/activity" className="text-xs font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
+            <h3 className="font-extrabold text-slate-800 dark:text-white text-base tracking-tight">Your Activity</h3>
+            <Link to="/activity" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 transition-colors">
               View all
             </Link>
           </div>
@@ -931,65 +946,65 @@ function Home() {
           <div className="grid grid-cols-3 gap-3">
             <button 
               onClick={() => navigate('/activity')}
-              className="group relative bg-white border border-slate-100 rounded-3xl p-4 flex flex-col justify-between shadow-[0_4px_20px_rgba(15,23,42,0.015)] min-h-[115px] text-left transition-all duration-300 hover:border-emerald-200 hover:shadow-[0_12px_30px_rgba(16,185,129,0.06)] hover:-translate-y-1 active:scale-[0.97] cursor-pointer overflow-hidden"
+              className="group relative bg-white dark:bg-[#272625] border border-slate-100 dark:border-white/10 rounded-3xl p-4 flex flex-col justify-between shadow-[0_4px_20px_rgba(15,23,42,0.015)] min-h-[115px] text-left transition-all duration-300 hover:border-emerald-200 dark:hover:border-emerald-500/40 hover:shadow-[0_12px_30px_rgba(16,185,129,0.06)] hover:-translate-y-1 active:scale-[0.97] cursor-pointer overflow-hidden"
             >
               {/* Subtle hover gradient background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/0 via-emerald-50/5 to-emerald-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/0 via-emerald-50/5 to-emerald-50/20 dark:from-emerald-500/0 dark:to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               
               <div className="flex justify-between items-start relative z-10">
-                <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-emerald-50 to-emerald-100/40 border border-emerald-100/60 flex items-center justify-center text-emerald-600 shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+                <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-emerald-50 to-emerald-100/40 dark:bg-emerald-950/40 border border-emerald-100/60 dark:border-emerald-800/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
                   <FileText size={16} className="stroke-[2.2]" />
                 </div>
                 {/* Pulsing indicator dot */}
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 opacity-60 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300" />
               </div>
               <div className="mt-3 relative z-10">
-                <div className="text-2xl font-black text-slate-800 tracking-tight leading-none transition-colors duration-300 group-hover:text-emerald-700">
+                <div className="text-2xl font-black text-slate-800 dark:text-white tracking-tight leading-none transition-colors duration-300 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">
                   {isLoading ? <Loader2 className="animate-spin text-slate-350" size={18} /> : activeRequests.length}
                 </div>
-                <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider block mt-1.5">Live Requests</span>
+                <span className="text-[9px] text-slate-400 dark:text-slate-400 font-extrabold uppercase tracking-wider block mt-1.5">Live Requests</span>
               </div>
             </button>
 
             <button 
               onClick={() => navigate('/activity')}
-              className="group relative bg-white border border-slate-100 rounded-3xl p-4 flex flex-col justify-between shadow-[0_4px_20px_rgba(15,23,42,0.015)] min-h-[115px] text-left transition-all duration-300 hover:border-amber-200 hover:shadow-[0_12px_30px_rgba(245,158,11,0.06)] hover:-translate-y-1 active:scale-[0.97] cursor-pointer overflow-hidden"
+              className="group relative bg-white dark:bg-[#272625] border border-slate-100 dark:border-white/10 rounded-3xl p-4 flex flex-col justify-between shadow-[0_4px_20px_rgba(15,23,42,0.015)] min-h-[115px] text-left transition-all duration-300 hover:border-amber-200 dark:hover:border-amber-500/40 hover:shadow-[0_12px_30px_rgba(245,158,11,0.06)] hover:-translate-y-1 active:scale-[0.97] cursor-pointer overflow-hidden"
             >
               {/* Subtle hover gradient background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-50/0 via-amber-50/5 to-amber-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-50/0 via-amber-50/5 to-amber-50/20 dark:from-amber-500/0 dark:to-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               
               <div className="flex justify-between items-start relative z-10">
-                <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-amber-50 to-amber-100/40 border border-amber-100/60 flex items-center justify-center text-amber-600 shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6">
+                <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-amber-50 to-amber-100/40 dark:bg-amber-950/40 border border-amber-100/60 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6">
                   <Users size={16} className="stroke-[2.2]" />
                 </div>
                 <div className="w-1.5 h-1.5 rounded-full bg-amber-400 opacity-60 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300" />
               </div>
               <div className="mt-3 relative z-10">
-                <div className="text-2xl font-black text-slate-800 tracking-tight leading-none transition-colors duration-300 group-hover:text-amber-700">
+                <div className="text-2xl font-black text-slate-800 dark:text-white tracking-tight leading-none transition-colors duration-300 group-hover:text-amber-700 dark:group-hover:text-amber-400">
                   {isLoading ? <Loader2 className="animate-spin text-slate-350" size={18} /> : pendingMatches.length}
                 </div>
-                <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider block mt-1.5">Offers Recd</span>
+                <span className="text-[9px] text-slate-400 dark:text-slate-400 font-extrabold uppercase tracking-wider block mt-1.5">Offers Recd</span>
               </div>
             </button>
 
             <button 
               onClick={() => navigate('/activity')}
-              className="group relative bg-white border border-slate-100 rounded-3xl p-4 flex flex-col justify-between shadow-[0_4px_20px_rgba(15,23,42,0.015)] min-h-[115px] text-left transition-all duration-300 hover:border-indigo-200 hover:shadow-[0_12px_30px_rgba(99,102,241,0.06)] hover:-translate-y-1 active:scale-[0.97] cursor-pointer overflow-hidden"
+              className="group relative bg-white dark:bg-[#272625] border border-slate-100 dark:border-white/10 rounded-3xl p-4 flex flex-col justify-between shadow-[0_4px_20px_rgba(15,23,42,0.015)] min-h-[115px] text-left transition-all duration-300 hover:border-indigo-200 dark:hover:border-indigo-500/40 hover:shadow-[0_12px_30px_rgba(99,102,241,0.06)] hover:-translate-y-1 active:scale-[0.97] cursor-pointer overflow-hidden"
             >
               {/* Subtle hover gradient background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/0 via-indigo-50/5 to-indigo-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/0 via-indigo-50/5 to-indigo-50/20 dark:from-indigo-500/0 dark:to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               
               <div className="flex justify-between items-start relative z-10">
-                <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-indigo-50 to-indigo-100/40 border border-indigo-100/60 flex items-center justify-center text-indigo-600 shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+                <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-indigo-50 to-indigo-100/40 dark:bg-indigo-950/40 border border-indigo-100/60 dark:border-indigo-800/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
                   <CheckCircle size={16} className="stroke-[2.2]" />
                 </div>
                 <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 opacity-60 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300" />
               </div>
               <div className="mt-3 relative z-10">
-                <div className="text-2xl font-black text-slate-800 tracking-tight leading-none transition-colors duration-300 group-hover:text-indigo-700">
+                <div className="text-2xl font-black text-slate-800 dark:text-white tracking-tight leading-none transition-colors duration-300 group-hover:text-indigo-700 dark:group-hover:text-indigo-400">
                   {isLoading ? <Loader2 className="animate-spin text-slate-350" size={18} /> : completedCount}
                 </div>
-                <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider block mt-1.5">Success Swaps</span>
+                <span className="text-[9px] text-slate-400 dark:text-slate-400 font-extrabold uppercase tracking-wider block mt-1.5">Success Swaps</span>
               </div>
             </button>
           </div>
@@ -997,11 +1012,11 @@ function Home() {
 
         {/* --- QUICK ACTIONS --- */}
         <div>
-          <h3 className="font-bold text-slate-800 text-base mb-3 px-1 tracking-tight">Quick Actions</h3>
+          <h3 className="font-bold text-slate-800 dark:text-white text-base mb-3 px-1 tracking-tight">Quick Actions</h3>
           <div className="space-y-3">
             <Link
               to="/find-requests"
-              className="bg-white border border-slate-100 rounded-3xl p-5 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.01)] hover:border-indigo-100 hover:shadow-[0_8px_30px_rgba(99,102,241,0.04)] hover:-translate-y-0.5 transition-all duration-300 text-left relative group cursor-pointer"
+              className="bg-white dark:bg-[#272625] border border-slate-100 dark:border-white/10 rounded-3xl p-5 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.01)] hover:border-indigo-100 dark:hover:border-white/20 hover:shadow-[0_8px_30px_rgba(99,102,241,0.04)] hover:-translate-y-0.5 transition-all duration-300 text-left relative group cursor-pointer"
             >
               {newRequestsCount > 0 && (
                 <span className="absolute -top-1.5 right-6 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1.5 text-[9px] font-black text-white shadow-sm border border-white animate-badge-pulse z-10">
@@ -1009,12 +1024,12 @@ function Home() {
                 </span>
               )}
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100/50 flex items-center justify-center text-indigo-600 transition-transform duration-300 group-hover:scale-110">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-white/5 border border-indigo-100/50 dark:border-white/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 transition-transform duration-300 group-hover:scale-110">
                   <Search size={22} className="stroke-[2.5]" />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-slate-800 text-sm">Help Someone Nearby</h4>
-                  <span className="text-xs text-slate-400 font-semibold mt-1 block">View what nearby people need and swap with them</span>
+                  <h4 className="font-extrabold text-slate-800 dark:text-white text-sm">Help Someone Nearby</h4>
+                  <span className="text-xs text-slate-400 dark:text-slate-400 font-semibold mt-1 block">View what nearby people need and swap with them</span>
                 </div>
               </div>
               <ChevronRight className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all duration-300" size={20} />
@@ -1022,15 +1037,15 @@ function Home() {
 
             <Link
               to="/activity"
-              className="bg-white border border-slate-100 rounded-3xl p-5 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.01)] hover:border-indigo-100 hover:shadow-[0_8px_30px_rgba(99,102,241,0.04)] hover:-translate-y-0.5 transition-all duration-300 text-left relative group cursor-pointer"
+              className="bg-white dark:bg-[#272625] border border-slate-100 dark:border-white/10 rounded-3xl p-5 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.01)] hover:border-indigo-100 dark:hover:border-white/20 hover:shadow-[0_8px_30px_rgba(99,102,241,0.04)] hover:-translate-y-0.5 transition-all duration-300 text-left relative group cursor-pointer"
             >
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 rounded-2xl bg-violet-50 border border-violet-100/50 flex items-center justify-center text-violet-600 transition-transform duration-300 group-hover:scale-110">
+                <div className="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-white/5 border border-violet-100/50 dark:border-white/10 flex items-center justify-center text-violet-600 dark:text-violet-400 transition-transform duration-300 group-hover:scale-110">
                   <FileText size={22} className="stroke-[2.5]" />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-slate-800 text-sm">My Swaps</h4>
-                  <span className="text-xs text-slate-400 font-semibold mt-1 block">View and manage your active and past swaps</span>
+                  <h4 className="font-extrabold text-slate-800 dark:text-white text-sm">My Swaps</h4>
+                  <span className="text-xs text-slate-400 dark:text-slate-400 font-semibold mt-1 block">View and manage your active and past swaps</span>
                 </div>
               </div>
               <ChevronRight className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all duration-300" size={20} />

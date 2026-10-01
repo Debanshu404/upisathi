@@ -16,6 +16,7 @@ import { Review } from "../models/reviewModel.js";
 import { sendOtpFunc } from "../services/email/sendOtp.js";
 import { OTP } from "../models/otpModel.js";
 import crypto from "crypto";
+import { getSessionCookieOptions, getClearCookieOptions } from "../utils/cookieHelper.js";
 
 export const emailRegister = async (req, res) => {
   const { success, data, error } = registerSchema.safeParse(req.body);
@@ -107,12 +108,7 @@ export const emailLogin = async (req, res) => {
       expiresAt: new Date(Date.now() + sessionMaxAge),
     });
 
-    res.cookie("sid", sessionId, {
-      httpOnly: true,
-      signed: true,
-      sameSite: "lax",
-      maxAge: sessionMaxAge,
-    });
+    res.cookie("sid", sessionId, getSessionCookieOptions(sessionMaxAge));
     return successResponse(res, 200, "User logged in successfully");
   } catch (error) {
     return errorResponse(res, 500, "Failed to create session");
@@ -182,9 +178,7 @@ export const logout = async (req, res) => {
 
     const sessions = await Session.deleteMany({ userId: req.user.id });
 
-    res.clearCookie("sid", {
-      httpOnly: true,
-    });
+    res.clearCookie("sid", getClearCookieOptions());
 
     return successResponse(res, 200, "Logout completed successfully");
   } catch (error) {

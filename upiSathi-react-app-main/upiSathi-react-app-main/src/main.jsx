@@ -6,6 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 import UserContext from "./context/UserContext.jsx";
 import SocketContext from "./context/SocketContext.jsx";
 import { NotificationProvider } from "./context/NotificationContext.jsx";
+import { ThemeProvider } from "./context/ThemeContext.jsx";
 import LocationContext from "./context/LocationContext.jsx";
 import "leaflet/dist/leaflet.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -24,17 +25,19 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <UserContext>
-            <SocketContext>
-              <LocationContext>
-                <NotificationProvider>
-                  <App />
-                </NotificationProvider>
-              </LocationContext>
-            </SocketContext>
-          </UserContext>
-        </BrowserRouter>
+        <ThemeProvider>
+          <BrowserRouter>
+            <UserContext>
+              <SocketContext>
+                <LocationContext>
+                  <NotificationProvider>
+                    <App />
+                  </NotificationProvider>
+                </LocationContext>
+              </SocketContext>
+            </UserContext>
+          </BrowserRouter>
+        </ThemeProvider>
       </QueryClientProvider>
     </GoogleOAuthProvider>
   </StrictMode>,

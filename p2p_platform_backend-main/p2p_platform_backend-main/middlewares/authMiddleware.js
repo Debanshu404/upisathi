@@ -1,4 +1,5 @@
 import { Session } from "../models/sessionModel.js";
+import { getClearCookieOptions } from "../utils/cookieHelper.js";
 
 export const checkAuth = async (req, res, next) => {
   try {
@@ -14,7 +15,7 @@ export const checkAuth = async (req, res, next) => {
     );
 
     if (!session) {
-      res.clearCookie("sid", { httpOnly: true });
+      res.clearCookie("sid", getClearCookieOptions());
       return res.status(401).json({ error: "Session expired" });
     }
 

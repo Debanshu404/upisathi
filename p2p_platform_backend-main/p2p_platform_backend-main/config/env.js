@@ -1,9 +1,17 @@
-import dotenv from "dotenv"
+import dotenv from "dotenv";
+import fs from "fs";
 
-dotenv.config({
+if (fs.existsSync(".env.local")) {
+  dotenv.config({
     path: ".env.local",
-    override: true,
-    quiet: true
-})
+    override: false,
+    quiet: true,
+  });
+} else {
+  dotenv.config({
+    override: false,
+    quiet: true,
+  });
+}
 
-export default process.env
+export default process.env;

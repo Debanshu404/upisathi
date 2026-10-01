@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,23 +8,83 @@
   :root {
     --color-primary: 79 70 229; /* indigo-600 */
     --color-primary-hover: 67 56 202; /* indigo-700 */
-    --color-background: 243 246 250; /* darkened premium slate-gray-blue */
+    --color-background: 246 248 252; /* Ultra crisp modern slate-blue canvas */
     --color-surface: 255 255 255; /* white */
-    --color-text: 15 23 42; /* slate-900 */
-    --color-text-muted: 100 116 139; /* slate-500 */
-    --color-border: 232 238 245; /* adjusted border color for contrast */
+    --color-text: 17 17 17; /* Amplemarket Ink #111111 */
+    --color-text-muted: 109 108 107; /* Amplemarket Ash #6d6c6b */
+    --color-border: 226 232 240; /* slate-200 */
+    
+    /* Amplemarket Signature Gradient */
+    --gradient-hero: radial-gradient(386.06% 162.79% at 3.76985% -12.1005%, rgb(232, 64, 13) 0%, rgb(255, 238, 216) 31.14%, rgb(208, 178, 255) 81.98%);
+  }
+
+  .dark {
+    --color-primary: 129 140 248; /* indigo-400 */
+    --color-primary-hover: 99 102 241;
+    --color-background: 22 21 20; /* Amplemarket deep warm charcoal #161514 */
+    --color-surface: 39 38 37; /* Amplemarket Charcoal #272625 */
+    --color-text: 255 255 255; /* Canvas White */
+    --color-text-muted: 177 177 175; /* Stone #b1b1af */
+    --color-border: 58 56 54; /* Hairline divider */
+
+    --gradient-hero: radial-gradient(386.06% 162.79% at 3.76985% -12.1005%, rgb(232, 64, 13) 0%, rgb(39, 38, 37) 35%, rgb(16, 5, 77) 85%);
   }
 
   body {
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background-color: rgb(var(--color-background));
     color: rgb(var(--color-text));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
-/* Custom scrollbars for clean look */
+/* Glassmorphism utility classes */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+.dark .glass-panel {
+  background: rgba(39, 38, 37, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.35);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(241, 245, 249, 0.85);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.03), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+}
+
+.dark .glass-card {
+  background: rgba(39, 38, 37, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.25);
+}
+
+.glass-card-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px -4px rgba(99, 102, 241, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+  border-color: rgba(199, 210, 254, 0.6);
+}
+
+.dark .glass-card-hover:hover {
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -35,15 +95,73 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.25);
+  background: rgba(148, 163, 184, 0.3);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 163, 175, 0.45);
+  background: rgba(148, 163, 184, 0.55);
 }
 
-/* Premium gentle pulse animation for unread badges and highlights */
+/* Amplemarket Style Classes */
+.ample-hero-radial {
+  background: var(--gradient-hero);
+}
+
+.ample-ink-btn {
+  background-color: #111111;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 12px 18px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.ample-ink-btn:hover {
+  background-color: #272625;
+  transform: translateY(-1px);
+}
+.dark .ample-ink-btn {
+  background-color: #ffffff;
+  color: #111111;
+}
+.dark .ample-ink-btn:hover {
+  background-color: #f6f5f3;
+}
+
+.ample-outline-btn {
+  background-color: transparent;
+  color: #111111;
+  border: 1px solid rgba(17, 17, 17, 0.15);
+  border-radius: 8px;
+  padding: 12px 18px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.ample-outline-btn:hover {
+  background-color: rgba(17, 17, 17, 0.04);
+  border-color: #111111;
+}
+.dark .ample-outline-btn {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.dark .ample-outline-btn:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: #ffffff;
+}
+
+/* Pastel taxonomy card system */
+.ample-pastel-tile {
+  border-radius: 12px;
+  padding: 20px;
+  color: #111111;
+  transition: transform 0.2s ease;
+}
+.ample-pastel-tile:hover {
+  transform: translateY(-2px);
+}
+
+/* Animations */
 @keyframes premium-badge-pulse {
   0%, 100% {
     transform: scale(1);
@@ -61,11 +179,56 @@
   animation: premium-badge-pulse 2.2s infinite ease-in-out;
 }
 
+@keyframes gentle-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float {
+  animation: gentle-float 4s ease-in-out infinite;
+}
+
+@keyframes sonar-ring {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.animate-sonar {
+  animation: sonar-ring 3s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+@keyframes radar-sweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-radar-sweep {
+  animation: radar-sweep 4s linear infinite;
+  transform-origin: center;
+}
+
 /* Hide scrollbars but keep functionality */
 .hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 .hide-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
+  display: none;
 }

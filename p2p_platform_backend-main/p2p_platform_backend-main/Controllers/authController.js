@@ -7,7 +7,8 @@ import { Session } from "../models/sessionModel.js";
 import { OTP } from "../models/otpModel.js";
 import { sendOtpSchema, verifyOtpSchema } from "../validators/zodSchema.js";
 import { sendOtpFunc } from "../services/email/sendOtp.js";
-import crypto from "crypto"
+import crypto from "crypto";
+import { getSessionCookieOptions } from "../utils/cookieHelper.js";
 
 export const loginWithGoogle = async (req, res) => {
   try {
@@ -59,12 +60,7 @@ export const loginWithGoogle = async (req, res) => {
       expiresAt: new Date(Date.now() + sessionMaxAge),
     });
 
-    res.cookie("sid", newSessionId, {
-      httpOnly: true,
-      signed: true,
-      sameSite: "lax",
-      maxAge: sessionMaxAge,
-    });
+    res.cookie("sid", newSessionId, getSessionCookieOptions(sessionMaxAge));
     return successResponse(res, 200, "User logged in successfully");
   } catch (error) {
     console.error("Google Auth Error:", error);

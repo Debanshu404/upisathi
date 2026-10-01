@@ -1,8 +1,17 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, Banknote, Smartphone, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Banknote, Smartphone, Loader2, Clock, Sparkles, MapPin } from 'lucide-react';
 import { useCreateRequest } from '../hooks/useExchanges';
 import { locationContext } from '../context/LocationContext';
+
+const QUICK_AMOUNTS = [100, 200, 500, 1000, 2000];
+const SPOT_PRESETS = [
+  'Near Metro Exit Gate',
+  'Outside Coffee Shop',
+  'Beside ATM / Bank Branch',
+  'At Main Road Entrance',
+  'Outside Grocery Store'
+];
 
 function CreateRequest() {
   const navigate = useNavigate();
@@ -29,11 +38,11 @@ function CreateRequest() {
   const handleNext = () => {
     setError(null);
     if (step === 1 && !formData.type) {
-      setError('Please select a request type.');
+      setError('Please select what type of exchange you need.');
       return;
     }
-    if (step === 2 && (!formData.amount || formData.amount <= 0)) {
-      setError('Please enter a valid amount.');
+    if (step === 2 && (!formData.amount || Number(formData.amount) <= 0)) {
+      setError('Please enter a valid swap amount.');
       return;
     }
     setStep(prev => prev + 1);
@@ -51,10 +60,11 @@ function CreateRequest() {
     setError(null);
     try {
       if (!currentLocation) {
-        throw new Error('Location coordinates are not available. Please allow location access to continue.');
+        throw new Error('Location coordinates are not available. Please allow GPS access to proceed.');
       }
       const payload = {
         ...formData,
+        amount: Number(formData.amount),
         coordinates: {
           latitude: currentLocation.latitude,
           longitude: currentLocation.longitude
@@ -69,120 +79,179 @@ function CreateRequest() {
     }
   };
 
+  const handlePresetNote = (preset) => {
+    setFormData(prev => ({
+      ...prev,
+      note: prev.note ? `${prev.note} (${preset})` : preset
+    }));
+  };
+
   return (
-    <div className="flex flex-col h-full max-w-md mx-auto pt-4 relative">
-      <div className="flex items-center space-x-4 mb-6 px-2">
-        <button 
-          onClick={() => step === 1 ? navigate(-1) : handlePrev()}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-        >
-          <ArrowLeft size={24} />
-        </button>
-        <h1 className="text-2xl font-bold">Ask for Cash or UPI</h1>
+    <div className="flex flex-col h-full max-w-xl mx-auto pt-2 pb-12 relative animate-in fade-in duration-300 text-slate-800 dark:text-white">
+      {/* Top Header */}
+      <div className="flex items-center justify-between mb-6 px-1">
+        <div className="flex items-center space-x-3">
+          <button 
+            onClick={() => step === 1 ? navigate(-1) : handlePrev()}
+            className="w-10 h-10 rounded-2xl bg-white dark:bg-[#272625] border border-slate-200/80 dark:border-white/10 shadow-sm flex items-center justify-center text-slate-700 dark:text-white hover:text-indigo-600 dark:hover:text-orange-400 hover:border-indigo-200 transition-all active:scale-95 cursor-pointer"
+            title="Back"
+          >
+            <ArrowLeft size={18} className="stroke-[2.5]" />
+          </button>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white tracking-tight">Create Swap Request</h1>
+            <p className="text-xs text-slate-400 dark:text-slate-400 font-semibold mt-0.5">Find someone nearby to exchange cash or digital money</p>
+          </div>
+        </div>
       </div>
 
-      {/* Progress Bar & Amount Ref */}
-      <div className="px-4 mb-8">
-        <div className="flex justify-between items-end mb-4">
-          <div className="text-sm font-medium text-gray-500">Step {step} of 4</div>
+      {/* Stepper Progress Bar */}
+      <div className="bg-white dark:bg-[#272625] border border-slate-200/70 dark:border-white/10 rounded-2xl p-4 mb-6 shadow-sm transition-colors">
+        <div className="flex justify-between items-center mb-2.5">
+          <div className="flex items-center space-x-2">
+            <span className="text-xs font-black text-indigo-600 dark:text-[#e8400d] uppercase tracking-wider">Step {step} of 4</span>
+            <span className="text-slate-300 dark:text-slate-600">•</span>
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
+              {step === 1 && "Choose Swap Mode"}
+              {step === 2 && "Enter Amount"}
+              {step === 3 && "Set Expiry Timer"}
+              {step === 4 && "Meetup Instructions"}
+            </span>
+          </div>
           {formData.amount && (
-            <div className="text-lg font-bold text-primary">
+            <span className="text-sm font-black text-indigo-600 dark:text-[#e8400d] bg-indigo-50 dark:bg-white/10 px-2.5 py-0.5 rounded-lg border border-indigo-100 dark:border-white/15">
               ₹{formData.amount}
-              {formData.type && <span className="text-xs text-gray-500 ml-1">({formData.type === 'NEED_CASH' ? 'Cash' : 'UPI'})</span>}
-            </div>
+            </span>
           )}
         </div>
-        <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+
+        {/* Stepper indicator dots and bar */}
+        <div className="w-full bg-slate-100 dark:bg-white/10 h-2 rounded-full overflow-hidden">
           <div 
-            className="bg-primary h-full transition-all duration-300"
+            className="bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-[#e8400d] dark:to-orange-400 h-full transition-all duration-300 rounded-full"
             style={{ width: `${(step / 4) * 100}%` }}
           />
         </div>
       </div>
 
       {error && (
-        <div className="px-4 mb-4">
-          <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm font-medium border border-red-100">
-            {error}
-          </div>
+        <div className="mb-6 p-4 bg-rose-50/90 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-2xl text-xs font-bold border border-rose-200/80 dark:border-rose-800/40 flex items-center space-x-2.5 animate-shake">
+          <span className="shrink-0 flex items-center justify-center w-5 h-5 rounded-full bg-rose-500 text-white font-black text-[10px]">!</span>
+          <span>{error}</span>
         </div>
       )}
 
-      {/* Form Steps */}
-      <div className="px-4 flex-1">
+      {/* Wizard Steps */}
+      <div className="bg-white dark:bg-[#272625] border border-slate-200/70 dark:border-white/10 rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgba(15,23,42,0.03)] flex-1 flex flex-col justify-between transition-colors">
         
+        {/* Step 1: Swap Selection */}
         {step === 1 && (
           <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
             <div>
-              <h2 className="text-xl font-bold mb-2">What do you need?</h2>
-              <p className="text-gray-500 text-sm mb-6">Select the type of exchange you're looking for.</p>
+              <h2 className="text-lg font-black text-slate-800 dark:text-white">What exchange do you need?</h2>
+              <p className="text-xs text-slate-400 dark:text-slate-400 font-semibold mt-1">Select the swap direction that fits your immediate situation.</p>
             </div>
             
-            <button 
-              onClick={() => { updateForm('type', 'NEED_CASH'); setError(null); }}
-              className={`w-full flex items-center p-6 border-2 rounded-2xl transition-all ${
-                formData.type === 'NEED_CASH' 
-                ? 'border-primary bg-blue-50/50 shadow-sm' 
-                : 'border-gray-200 hover:border-blue-200 hover:bg-gray-50'
-              }`}
-            >
-              <div className={`p-4 rounded-full mr-4 ${formData.type === 'NEED_CASH' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500'}`}>
-                <Banknote size={32} />
-              </div>
-              <div className="text-left flex-1">
-                <h3 className="font-bold text-lg text-gray-900">Get Physical Cash</h3>
-                <p className="text-sm text-gray-500">Pay with UPI, get cash in hand.</p>
-              </div>
-              {formData.type === 'NEED_CASH' && <Check className="text-primary" size={24} />}
-            </button>
+            <div className="grid grid-cols-1 gap-4">
+              {/* Need Physical Cash Option */}
+              <button 
+                type="button"
+                onClick={() => { updateForm('type', 'NEED_CASH'); setError(null); }}
+                className={`w-full flex items-center p-5 rounded-2xl border-2 transition-all duration-200 text-left active:scale-98 cursor-pointer relative overflow-hidden ${
+                  formData.type === 'NEED_CASH' 
+                    ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/30 shadow-md shadow-emerald-500/10' 
+                    : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50/60 dark:hover:bg-white/5'
+                }`}
+              >
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mr-4 shrink-0 transition-colors ${
+                  formData.type === 'NEED_CASH' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400'
+                }`}>
+                  <Banknote size={28} className="stroke-[2.2]" />
+                </div>
+                <div className="flex-1 min-w-0 pr-3">
+                  <div className="flex items-center space-x-2">
+                    <h3 className="font-black text-slate-800 dark:text-white text-base">I Need Physical Cash</h3>
+                    <span className="text-[10px] font-black uppercase bg-emerald-100/70 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-md">
+                      Most Popular
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-300 font-semibold mt-1">You pay via UPI, nearby partner hands you physical cash notes.</p>
+                </div>
+                {formData.type === 'NEED_CASH' && (
+                  <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check size={16} className="stroke-[3]" />
+                  </div>
+                )}
+              </button>
 
-            <button 
-              onClick={() => { updateForm('type', 'NEED_UPI'); setError(null); }}
-              className={`w-full flex items-center p-6 border-2 rounded-2xl transition-all ${
-                formData.type === 'NEED_UPI' 
-                ? 'border-primary bg-blue-50/50 shadow-sm' 
-                : 'border-gray-200 hover:border-blue-200 hover:bg-gray-50'
-              }`}
-            >
-              <div className={`p-4 rounded-full mr-4 ${formData.type === 'NEED_UPI' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500'}`}>
-                <Smartphone size={32} />
-              </div>
-              <div className="text-left flex-1">
-                <h3 className="font-bold text-lg text-gray-900">Get UPI Transfer</h3>
-                <p className="text-sm text-gray-500">Give physical cash, get UPI in bank.</p>
-              </div>
-              {formData.type === 'NEED_UPI' && <Check className="text-primary" size={24} />}
-            </button>
+              {/* Need Digital UPI Option */}
+              <button 
+                type="button"
+                onClick={() => { updateForm('type', 'NEED_UPI'); setError(null); }}
+                className={`w-full flex items-center p-5 rounded-2xl border-2 transition-all duration-200 text-left active:scale-98 cursor-pointer relative overflow-hidden ${
+                  formData.type === 'NEED_UPI' 
+                    ? 'border-indigo-600 dark:border-[#e8400d] bg-indigo-50/40 dark:bg-orange-950/30 shadow-md shadow-indigo-600/10' 
+                    : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50/60 dark:hover:bg-white/5'
+                }`}
+              >
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mr-4 shrink-0 transition-colors ${
+                  formData.type === 'NEED_UPI' ? 'bg-indigo-600 dark:bg-[#e8400d] text-white shadow-md shadow-indigo-600/20' : 'bg-indigo-50 dark:bg-white/10 text-indigo-600 dark:text-indigo-400'
+                }`}>
+                  <Smartphone size={28} className="stroke-[2.2]" />
+                </div>
+                <div className="flex-1 min-w-0 pr-3">
+                  <h3 className="font-black text-slate-800 dark:text-white text-base">I Need Digital Money (UPI)</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-300 font-semibold mt-1">You hand over cash, partner transfers money to your UPI ID instantly.</p>
+                </div>
+                {formData.type === 'NEED_UPI' && (
+                  <div className="w-7 h-7 rounded-full bg-indigo-600 dark:bg-[#e8400d] text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <Check size={16} className="stroke-[3]" />
+                  </div>
+                )}
+              </button>
+            </div>
           </div>
         )}
 
+        {/* Step 2: Amount Entry */}
         {step === 2 && (
           <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
             <div>
-              <h2 className="text-xl font-bold mb-2">How much?</h2>
-              <p className="text-gray-500 text-sm mb-6">Enter the amount you want to exchange.</p>
+              <h2 className="text-lg font-black text-slate-800 dark:text-white">How much do you want to swap?</h2>
+              <p className="text-xs text-slate-400 dark:text-slate-400 font-semibold mt-1">Enter the exact rupee amount. Zero platform fees are deducted.</p>
             </div>
             
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-400">₹</span>
+              <span className="absolute left-5 top-1/2 -translate-y-1/2 text-3xl font-black text-slate-400">₹</span>
               <input 
                 type="number" 
                 value={formData.amount}
                 onChange={(e) => updateForm('amount', e.target.value)}
-                placeholder="0"
-                className="w-full text-4xl font-bold pl-12 pr-4 py-6 bg-surface border-2 border-gray-200 rounded-2xl focus:border-primary focus:outline-none transition-colors"
+                placeholder="500"
+                min="10"
+                max="50000"
+                className="w-full text-4xl sm:text-5xl font-black pl-14 pr-4 py-5 bg-slate-50/80 dark:bg-[#1a1918] border-2 border-slate-200 dark:border-white/10 rounded-3xl focus:border-indigo-600 dark:focus:border-[#e8400d] focus:bg-white dark:focus:bg-[#1a1918] focus:outline-none transition-all text-slate-800 dark:text-white shadow-inner"
                 autoFocus
               />
             </div>
 
-            <div className="pt-4">
-              <p className="text-sm font-medium text-gray-500 mb-3">Quick select</p>
-              <div className="flex space-x-3">
-                {[100, 500, 1000].map(amt => (
+            {/* Quick Amount Chips */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">Quick Select</span>
+                <span className="text-[11px] font-bold text-indigo-600 dark:text-[#e8400d]">Standard Indian currency notes</span>
+              </div>
+              <div className="grid grid-cols-5 gap-2">
+                {QUICK_AMOUNTS.map(amt => (
                   <button
                     key={amt}
+                    type="button"
                     onClick={() => updateForm('amount', amt)}
-                    className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-xl transition-colors"
+                    className={`py-3 rounded-2xl font-black text-sm transition-all active:scale-95 cursor-pointer border ${
+                      Number(formData.amount) === amt 
+                        ? 'bg-indigo-600 dark:bg-[#e8400d] text-white border-indigo-600 dark:border-[#e8400d] shadow-md' 
+                        : 'bg-slate-100/70 dark:bg-white/5 hover:bg-slate-200/80 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 border-slate-200/60 dark:border-white/10'
+                    }`}
                   >
                     ₹{amt}
                   </button>
@@ -192,75 +261,124 @@ function CreateRequest() {
           </div>
         )}
 
+        {/* Step 3: Timer & Radius Limit */}
         {step === 3 && (
-          <div className="space-y-8 animate-in slide-in-from-right-4 fade-in duration-300">
+          <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
             <div>
-              <h2 className="text-xl font-bold mb-2">Time Limit</h2>
-              <p className="text-gray-500 text-sm mb-6">Set the time limit for responses.</p>
+              <h2 className="text-lg font-black text-slate-800 dark:text-white">Response Time Limit</h2>
+              <p className="text-xs text-slate-400 dark:text-slate-400 font-semibold mt-1">How long should your request stay open before auto-closing?</p>
             </div>
 
-            <div className="space-y-4 bg-surface p-6 border border-gray-100 shadow-sm rounded-2xl">
-              <div className="flex justify-between items-end mb-2">
-                <label className="font-bold text-gray-800">Time limit for responses</label>
-                <span className="font-semibold text-primary">{formData.expiry} min</span>
+            <div className="bg-slate-50 dark:bg-[#1a1918] border border-slate-200/80 dark:border-white/10 rounded-3xl p-6 space-y-4">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-2 text-slate-700 dark:text-slate-200 font-extrabold text-sm">
+                  <Clock size={16} className="text-indigo-600 dark:text-[#e8400d]" />
+                  <span>Closing Timer</span>
+                </div>
+                <span className="font-black text-indigo-600 dark:text-[#e8400d] bg-white dark:bg-[#272625] px-3 py-1 rounded-xl border border-indigo-100 dark:border-white/10 text-sm shadow-sm">
+                  {formData.expiry} minutes
+                </span>
               </div>
+
               <input 
                 type="range" 
-                min="5" max="60" step="5"
+                min="5" 
+                max="60" 
+                step="5"
                 value={formData.expiry}
                 onChange={(e) => updateForm('expiry', parseInt(e.target.value))}
-                className="w-full accent-primary h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                className="w-full accent-indigo-600 dark:accent-[#e8400d] h-2 bg-slate-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer"
               />
-              <div className="flex justify-between text-xs text-gray-400 font-medium">
-                <span>5 min</span>
-                <span>60 min</span>
+
+              <div className="flex justify-between text-[11px] text-slate-400 dark:text-slate-400 font-bold">
+                <span>5 mins (Quick)</span>
+                <span>20 mins (Recommended)</span>
+                <span>60 mins (Relaxed)</span>
               </div>
-              <p className="text-xs text-gray-500 mt-2">Your request will close automatically if no one answers in time.</p>
+
+              <div className="p-3 bg-indigo-50/60 dark:bg-white/5 border border-indigo-100 dark:border-white/10 rounded-2xl flex items-center space-x-2 text-xs font-semibold text-indigo-800 dark:text-indigo-300">
+                <Sparkles size={14} className="shrink-0 text-indigo-600 dark:text-[#e8400d]" />
+                <span>Nearby users typically offer assistance in under 4 minutes.</span>
+              </div>
             </div>
           </div>
         )}
 
+        {/* Step 4: Meeting Spot Note */}
         {step === 4 && (
           <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
             <div>
-              <h2 className="text-xl font-bold mb-2">Add instructions or meeting point (Optional)</h2>
-              <p className="text-gray-500 text-sm mb-6">Help helpers find you. Let them know where you are.</p>
+              <h2 className="text-lg font-black text-slate-800 dark:text-white">Meeting Point / Note (Optional)</h2>
+              <p className="text-xs text-slate-400 dark:text-slate-400 font-semibold mt-1">Specify where you would like to meet in person to coordinate the swap.</p>
+            </div>
+
+            {/* Quick Chip Presets */}
+            <div className="space-y-2">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">Tap to insert spot suggestion:</span>
+              <div className="flex flex-wrap gap-2">
+                {SPOT_PRESETS.map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => handlePresetNote(preset)}
+                    className="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-100 dark:bg-white/5 hover:bg-indigo-50 dark:hover:bg-white/10 hover:text-indigo-600 dark:hover:text-orange-400 hover:border-indigo-200 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold transition-all border border-slate-200/60 dark:border-white/10 active:scale-95 cursor-pointer"
+                  >
+                    <MapPin size={11} />
+                    <span>{preset}</span>
+                  </button>
+                ))}
+              </div>
             </div>
             
             <textarea 
               value={formData.note}
               onChange={(e) => updateForm('note', e.target.value)}
-              placeholder="e.g., I'm wearing a red jacket near the cafe..."
-              className="w-full p-4 bg-surface border-2 border-gray-200 rounded-2xl focus:border-primary focus:outline-none transition-colors h-40 resize-none"
+              placeholder="e.g., I'm waiting near the Metro ticket counter wearing a blue shirt..."
+              className="w-full p-4 bg-slate-50/80 dark:bg-[#1a1918] border-2 border-slate-200 dark:border-white/10 rounded-2xl focus:border-indigo-600 dark:focus:border-[#e8400d] focus:bg-white dark:focus:bg-[#1a1918] focus:outline-none transition-all h-36 resize-none text-sm text-slate-800 dark:text-white font-medium"
             />
           </div>
         )}
 
-      </div>
+        {/* Step Controls / Next Button */}
+        <div className="pt-6 border-t border-slate-100 dark:border-white/10 flex items-center justify-between space-x-3 mt-6">
+          {step > 1 ? (
+            <button 
+              type="button"
+              onClick={handlePrev}
+              className="px-5 py-3.5 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-700 dark:text-white rounded-2xl font-bold text-sm transition-all active:scale-95 cursor-pointer"
+            >
+              Back
+            </button>
+          ) : <div />}
 
-      {/* Bottom Nav / Next Button */}
-      <div className="p-4 bg-background border-t border-gray-100 pb-8">
-        {step < 4 ? (
-          <button 
-            onClick={handleNext}
-            className="w-full flex items-center justify-center py-4 bg-primary text-white rounded-xl font-bold text-lg hover:bg-primary-hover transition-colors shadow-md"
-          >
-            <span>Next</span>
-            <ArrowRight size={20} className="ml-2" />
-          </button>
-        ) : (
-          <button 
-            onClick={handleSubmit}
-            disabled={isLoading}
-            className="w-full flex items-center justify-center py-4 bg-primary text-white rounded-xl font-bold text-lg hover:bg-primary-hover transition-colors shadow-md disabled:opacity-70"
-          >
-            {isLoading ? (
-              <Loader2 className="animate-spin mr-2" size={24} />
-            ) : (
-              <span>Post Swap Request</span>
-            )}
-          </button>
-        )}
+          {step < 4 ? (
+            <button 
+              type="button"
+              onClick={handleNext}
+              className="flex-1 max-w-[200px] flex items-center justify-center py-3.5 bg-[#111111] dark:bg-[#e8400d] hover:bg-[#272625] dark:hover:bg-[#d03709] text-white rounded-2xl font-extrabold text-sm shadow-md transition-all active:scale-95 cursor-pointer"
+            >
+              <span>Continue</span>
+              <ArrowRight size={16} className="ml-1.5" />
+            </button>
+          ) : (
+            <button 
+              type="button"
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className="flex-1 flex items-center justify-center py-4 bg-[#111111] dark:bg-[#e8400d] hover:bg-[#272625] dark:hover:bg-[#d03709] text-white rounded-2xl font-extrabold text-base shadow-lg shadow-black/10 transition-all active:scale-95 disabled:opacity-70 cursor-pointer"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin mr-2" size={20} />
+                  <span>Publishing Request...</span>
+                </>
+              ) : (
+                <span>Post Swap Request Now</span>
+              )}
+            </button>
+          )}
+        </div>
+
       </div>
     </div>
   );

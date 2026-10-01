@@ -17,7 +17,7 @@ function PrivateRoute({ children }) {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/landing" replace />;
   }
 
   // Guard access if location is not resolved or is explicitly denied
